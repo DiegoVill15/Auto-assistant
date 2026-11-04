@@ -4,6 +4,7 @@ import re
 from dataclasses import dataclass
 
 ENCABEZADO = re.compile(r"^(#{2,4}) (.+)$", re.MULTILINE)
+SOLO_ENCABEZADOS = re.compile(r"^#{1,6} .*$", re.MULTILINE)
 ARTICULO = "#### Artículo "
 
 
@@ -31,16 +32,15 @@ def _sections(text: str) -> list[tuple[int, int, str | None]]:
 
 
 def _tiene_texto(text: str, ini: int, fin: int) -> bool:
-    """Una sección de capítulo o sección solo cuenta si trae texto además de su encabezado."""
-    cuerpo = text[ini:fin]
-    return bool(ENCABEZADO.sub("", cuerpo, count=1).strip()) if cuerpo.startswith("#") else True
+    """Una sección solo genera fragmentos si trae texto además de sus encabezados."""
+    return bool(SOLO_ENCABEZADOS.sub("", text[ini:fin]).strip())
 
 
 def chunk_text(document: str, text: str, size: int, overlap: int) -> list[Chunk]:
     """Parte el texto en ventanas de ~size caracteres con solapamiento dentro de cada artículo."""
     chunks = []
     for ini, fin, article in _sections(text):
-        if article is None and not _tiene_texto(text, ini, fin):
+        if not _tiene_texto(text, ini, fin):
             continue
         start = ini
         while start < fin:

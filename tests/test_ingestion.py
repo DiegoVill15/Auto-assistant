@@ -52,3 +52,7 @@ def test_encabezados_de_capitulo_no_se_pegan_a_fragmentos():
     chunks = chunk_text("doc.md", TEXTO, 100, 20)
     for c in chunks:
         assert "## Capítulo" not in c.text and "### Sección" not in c.text
+
+
+def test_solo_encabezados_no_genera_fragmento():
+    assert chunk_text("doc.md", "# Título\n\n## Capítulo I. Algo\n\n", 100, 20) == []
