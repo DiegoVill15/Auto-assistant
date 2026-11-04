@@ -1,28 +1,32 @@
 # Auto-assistant
 
-Asistente RAG de código abierto y en español que se auto-evalúa: mide su calidad con preguntas de prueba y bloquea los cambios que la bajan.
+Un asistente RAG en español que se revisa solo. Mide su calidad con preguntas de prueba y frena los cambios que la empeoran.
 
-> Este proyecto no da asesoría legal. El corpus es la Ley Federal de Protección al Consumidor, solo como material de consulta.
+Responde sobre la Ley Federal de Protección al Consumidor. Es solo material de consulta, así que no lo tomes como asesoría legal.
 
 ## Instalación
 
-Requisitos: [uv](https://docs.astral.sh/uv/), [Ollama](https://ollama.com) con sesión iniciada (`ollama signin`, para modelos cloud; no se corre ningún modelo local) y, para el script de humo, la CLI `claude` con sesión del plan Pro.
+Necesitas [uv](https://docs.astral.sh/uv/) y [Ollama](https://ollama.com) con tu sesión iniciada, porque usamos sus modelos en la nube. Para la prueba completa también necesitas la CLI de `claude` con el plan Pro.
 
 ```bash
 uv sync
-cp .env.example .env   # y completa OPENCODE_GO_API_KEY y OPENROUTER_API_KEY
+cp .env.example .env
 ```
+
+Después pon tus llaves de OpenCode Go y OpenRouter en `.env`.
 
 ## Uso
 
-Prueba de humo (una llamada mínima a cada uno de los cuatro proveedores: Ollama cloud, OpenRouter, OpenCode Go y `claude -p`; no corre en CI):
+Por ahora puedes comprobar que todos los proveedores responden. El script hace una llamada muy corta a cada uno:
 
 ```bash
-set -a; source .env; set +a
+set -a
+source .env
+set +a
 uv run python scripts/smoke.py
 ```
 
-Ejemplo de salida:
+Si todo va bien, verás esto:
 
 ```
 OK    ollama
@@ -31,14 +35,18 @@ OK    opencode_go
 OK    claude -p
 ```
 
-Pruebas y lint: `uv run pytest`, `uv run ruff check .`, `uv run ruff format --check .`.
+Para correr las pruebas y revisar el estilo del código:
 
-## Arquitectura (estado actual)
+```bash
+uv run pytest
+uv run ruff check .
+uv run ruff format --check .
+```
 
-- `config/models.yaml`: modelos comparados, jueces candidatos y generador del golden set.
-- `src/auto_assistant/models/`: carga de la configuración y `complete()`, único acceso a modelos vía LiteLLM.
-- `scripts/smoke.py`: verifica Ollama cloud, OpenRouter, OpenCode Go y `claude -p`.
+## Arquitectura
+
+El proyecto apenas empieza, así que por ahora son tres piezas. En `config/models.yaml` están los modelos que usamos. En `src/auto_assistant/models/` está el código que los carga y los llama. Y `scripts/smoke.py` es el script de arriba.
 
 ## Licencia
 
-MIT (se agregará al final del proyecto).
+Va a ser MIT. El archivo se agrega al final del proyecto.

@@ -1,11 +1,17 @@
 # Decisiones
 
-- Todo modelo pasa por LiteLLM. Única excepción: `claude -p` (Opus 5.5, plan Pro) para generar el golden set.
-- Python 3.12 fijado con uv (`.python-version`): el del sistema es 3.15 y las dependencias aún no lo soportan.
-- El golden set lo genera Opus 5.5; el juez corre en OpenCode Go y nunca es un modelo comparado.
-- La puerta de CI no usa LLM ni secretos: solo lint y pruebas unitarias.
-- Las carpetas se crean cuando su responsabilidad existe; por eso aún no hay `corpora/` ni `evals/`, aunque PLAN.md los mencione.
-- OpenCode Go se llama por el endpoint compatible con OpenAI (`OPENCODE_GO_API_KEY`) hasta que LiteLLM publique el proveedor `opencode_go` en una versión estable.
-- Solo modelos en la nube, sin correr LLM en la MacBook.
-- OpenRouter como proveedor gratis: límite de 50 peticiones al día, y los modelos `:free` rotan, así que los reportes llevan fecha.
-- Los embeddings (bge-m3) corren en local: la puerta de CI no necesita llaves y sus métricas son repetibles.
+**Todos los modelos pasan por LiteLLM.** Así cambiar de proveedor es cambiar la configuración. La excepción es el script del golden set, que usa Opus 5.5 con `claude -p`.
+
+**Opus 5.5 escribe las preguntas de prueba y otro modelo las juzga.** Si el mismo modelo hiciera las dos cosas, se estaría calificando a sí mismo. El juez tampoco puede ser uno de los modelos que comparamos.
+
+**Los LLM corren en la nube y los embeddings en local.** No queremos cargar la MacBook con modelos grandes. Los embeddings locales permiten revisar la calidad en GitHub sin llaves.
+
+**La revisión en GitHub no usa LLM.** Las métricas son repetibles y no se gastan límites en cada PR.
+
+**OpenCode Go usa su URL directa por ahora.** LiteLLM ya tiene el proveedor en su código, pero todavía no en una versión estable. Lo cambiamos cuando salga.
+
+**OpenRouter es el proveedor gratis.** Permite 50 peticiones al día y sus modelos gratis cambian seguido, así que cada reporte lleva fecha.
+
+**Python 3.12 fijado con uv.** La Mac trae la 3.15 y preferimos no depender de una versión tan nueva.
+
+**Las carpetas se crean cuando hacen falta.** Por eso todavía no existen `corpora/` ni `evals/`.

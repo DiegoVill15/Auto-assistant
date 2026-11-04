@@ -1,78 +1,69 @@
-# Plan: versión corta
+# Plan de la versión corta
 
-Objetivo: un RAG en español que mide su recuperación y formato contra preguntas revisadas, y bloquea el cambio si la calidad baja. La fidelidad se reporta aparte.
+Queremos un RAG en español que mida qué tan bien encuentra la información y frene cualquier cambio que lo empeore. La fidelidad de las respuestas se reporta aparte.
 
-Estimación: 4 a 6 días, a 3 o 4 horas diarias. Cada fase termina en una parada para revisión.
+Calculamos de 4 a 6 días, a 3 o 4 horas diarias. Al terminar cada fase paramos para revisarla.
 
-**Stack:** Python, LangGraph, LiteLLM, bge-m3, ChromaDB, Pydantic, pytest, ruff y GitHub Actions.
+Usamos Python, LangGraph, LiteLLM, bge-m3, ChromaDB, Pydantic, pytest, ruff y GitHub Actions.
 
-**Fuera por ahora:** guardrails y fallbacks (Fase 4), auto-optimización (Fase 6), corpus ficticios, Langfuse, API, ingesta de PDF y HTML, y demo en vivo.
+Dejamos para después los guardrails, los fallbacks, la auto-optimización, los corpus ficticios, Langfuse, la API, la lectura de PDF y HTML, y la demo en vivo.
 
 ## Fase 0: Cimientos
 
-- Estructura `tests/`, `corpora/`, `evals/` y `src/`, con una carpeta por responsabilidad: `models/` en esta fase; después `ingestion/`, `retrieval/`, `agent/`, `evaluation/` y `cli/`. Además, `pyproject.toml`, ruff y pytest.
-- Capa de modelos con LiteLLM y configuración en YAML.
-- Modelos definidos en `config/models.yaml`.
-- Script de humo con Ollama Cloud, OpenCode Go y OpenRouter, con user agent propio. Una llamada aparte confirma que `claude -p` funciona con Opus 5.5 en el plan Pro.
-- GitHub Actions con lint y pruebas; README y `DECISIONS.md` iniciales.
+Dejamos listo el proyecto con uv, ruff y pytest, con una carpeta por cada responsabilidad. Hoy solo existe `models/`. Después vendrán `ingestion/`, `retrieval/`, `agent/`, `evaluation/` y `cli/`.
 
-**Aceptación:** pruebas en verde en local y en CI; el script responde con los tres proveedores y `claude -p` responde con Opus 5.5.
+Los modelos se definen en `config/models.yaml` y se llaman por LiteLLM. Un script hace una llamada corta a Ollama Cloud, OpenCode Go, OpenRouter y `claude -p` con Opus 5.5. GitHub Actions corre el lint y las pruebas.
 
-**Parada:** corres el script con tus llaves.
+**Está lista cuando** las pruebas pasan en local y en GitHub, y responden los cuatro proveedores.
+
+**Para revisarla,** corres el script con tus llaves.
 
 ## Fase 1: RAG base
 
-- Ley Federal de Protección al Consumidor, convertida una vez a Markdown desde el texto oficial.
-- Ingesta de md y txt con chunking configurable y metadatos de fuente.
-- Embeddings bge-m3, con sentence-transformers como alternativa si Ollama falla; índice local y recuperación top-k.
-- Flujo LangGraph: recuperar, responder con citas y verificar soporte.
-- Responde que no sabe cuando la recuperación es débil (umbral configurable).
-- CLI `ask`.
+Convertimos una vez la Ley Federal de Protección al Consumidor a Markdown, desde el texto oficial. Luego la partimos en fragmentos, guardamos de dónde sale cada uno y creamos sus embeddings con bge-m3 en local. Si Ollama da problemas, usamos sentence-transformers.
 
-**Aceptación:** pruebas de ingesta y chunking; respuestas con citas sobre la ley.
+El flujo en LangGraph busca, responde con citas y comprueba que la respuesta tenga sustento. Si lo que encuentra es débil, dice que no sabe. Todo se usa con el comando `ask`.
 
-**Parada:** haces 10 preguntas propias.
+**Está lista cuando** pasan las pruebas de lectura y fragmentación, y las respuestas sobre la ley traen citas.
+
+**Para revisarla,** haces 10 preguntas tuyas.
 
 ## Fase 2: Golden set
 
-- Preguntas por tipo (directas, multi-contexto, razonamiento y sin respuesta), con respuesta esperada y pasaje fuente.
-- Cada pasaje se guarda por documento y posición, no por ID de chunk, para poder comparar configuraciones de chunking.
-- Filtros deterministas: formato Pydantic, deduplicación y respuesta verificable contra el pasaje.
-- Generador: Opus 5.5 con `claude -p`, en un script aparte que corre una vez y en lotes pequeños.
-- Dataset en JSONL, versionado y congelado.
-- CLI de revisión humana que registra aprobada o rechazada.
+El golden set es el conjunto de preguntas revisadas con el que medimos todo lo demás. Lo genera Opus 5.5 una sola vez y en lotes pequeños, con un script aparte.
 
-**Aceptación:** al menos 60 preguntas, mínimo 15% sin respuesta en los documentos y las 60 revisadas por ti. Tasa de aprobación propuesta: 80%.
+Incluye preguntas directas, que combinan varios artículos, que piden razonar y que la ley no responde. Cada una trae su respuesta esperada y el pasaje de donde sale. El pasaje se guarda por documento y posición, porque así seguimos pudiendo medir aunque cambie la forma de fragmentar.
 
-**Parada:** revisas el golden set.
+El código descarta las preguntas repetidas, las mal formadas y las que no se pueden comprobar contra su pasaje. Un comando te deja aprobar o rechazar cada pregunta. Al final, el set se guarda en JSONL y ya no se toca.
+
+**Está lista cuando** hay al menos 60 preguntas, 15% o más no tienen respuesta en la ley y revisaste todas. Proponemos aprobar al menos 80%.
+
+**Para revisarla,** lees el golden set.
 
 ## Fase 3: Evaluación y comparación
 
-- Métricas de recuperación en código: recall@k, MRR y hit rate.
-- Juez lanzado solo desde tu Mac, nunca en CI, con pocas llamadas simultáneas: fidelidad y rechazo correcto. Elegir una herramienta (Ragas, DeepEval o propia) tras una prueba corta en español.
-- Elegir al juez entre `kimi-k3` y `deepseek-v4-pro`: gana el que más coincida con 20 respuestas etiquetadas a mano.
-- Reporte en Markdown con calidad, latencia y tokens.
-- Gráfica pequeña que compara `glm-5.3-flash`, `mimo-v2.6-flash`, `gemma4:31b-cloud` (Ollama Cloud) y `nemotron-3-ultra-550b-a55b:free` (OpenRouter).
-- La clave de caché incluye modelo, prompt, contexto y número de corrida.
+El código mide la búsqueda con recall@k, MRR y hit rate. Un modelo juez califica la fidelidad y si el asistente se niega a responder cuando debe. Lo corremos solo desde tu Mac, nunca en GitHub, y con pocas llamadas a la vez.
 
-**Aceptación:** corrida completa con al menos 2 modelos. Empieza con 1 corrida por modelo y llega a 3 solo si los límites de OpenCode Go lo permiten.
+Para elegir al juez entre `kimi-k3` y `deepseek-v4-pro`, etiquetas 20 respuestas a mano y gana el que más coincida contigo. También probamos en español Ragas, DeepEval o algo propio, y nos quedamos con uno.
 
-**Parada:** comparas el reporte contra tu criterio en 10 casos.
+El resultado es un reporte con calidad, tiempos y tokens, más una gráfica pequeña que compara `glm-5.3-flash`, `mimo-v2.6-flash`, `gemma4:31b-cloud` y `nemotron-3-ultra-550b-a55b:free`. La caché separa cada corrida para poder medir cuánto varían los resultados.
+
+**Está lista cuando** tenemos una corrida completa con al menos 2 modelos. Empezamos con una corrida por modelo y llegamos a tres solo si los límites lo permiten.
+
+**Para revisarla,** comparas el reporte con tu criterio en 10 casos.
 
 ## Fase 5: Puerta de calidad
 
-- GitHub Actions corre solo métricas deterministas, sin LLM ni llaves.
-- Umbrales configurables, con un margen para no bloquear por ruido: con 60 preguntas, cada una vale 1.67 puntos.
-- Una prueba local con el juez cubre el caso de un documento que contradice a otro.
+GitHub Actions corre solo las métricas del código, sin LLM ni llaves. Los umbrales llevan un margen para no bloquear por ruido, porque con 60 preguntas cada una vale 1.67 puntos.
 
-**Aceptación:** un PR que empeora el chunking queda bloqueado.
+El caso de un documento que contradice a otro lo probamos en tu Mac con el juez.
 
-**Parada:** abres un PR de prueba que rompa algo.
+**Está lista cuando** un PR que empeora la fragmentación queda bloqueado.
+
+**Para revisarla,** abres un PR que rompa algo a propósito.
 
 ## Fase 7: Presentación
 
-- README con arquitectura, gráfica de modelos y pasos para reproducir.
-- Archivo `LICENSE` con la licencia MIT.
+Terminamos el README con la arquitectura, la gráfica de modelos y los pasos para reproducir todo. También agregamos la licencia MIT.
 
-**Aceptación:** alguien que no conoce el proyecto clona el repo y reproduce un reporte siguiendo solo el README.
-
+**Está lista cuando** alguien que no conoce el proyecto puede clonarlo y sacar un reporte siguiendo solo el README.
