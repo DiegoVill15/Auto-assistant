@@ -1,10 +1,12 @@
 """Índice persistente en ChromaDB y búsqueda top-k."""
 
+import shutil
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
 import chromadb
+from chromadb.api.shared_system_client import SharedSystemClient
 from chromadb.config import Settings
 
 from auto_assistant.ingestion.chunker import Chunk
@@ -38,10 +40,9 @@ def has_index(path: Path = RUTA_POR_DEFECTO) -> bool:
 
 def build_index(chunks: list[Chunk], embedder: Embedder, path: Path = RUTA_POR_DEFECTO) -> None:
     """Reemplaza el índice con los fragmentos dados."""
-    client = _client(path)
-    if COLECCION in [c.name for c in client.list_collections()]:
-        client.delete_collection(COLECCION)
-    coleccion = client.create_collection(COLECCION, metadata={"hnsw:space": "cosine"})
+    shutil.rmtree(path, ignore_errors=True)  # borra también carpetas viejas de índices anteriores
+    SharedSystemClient.clear_system_cache()  # Chroma cachea el cliente por ruta
+    coleccion = _client(path).create_collection(COLECCION, metadata={"hnsw:space": "cosine"})
     for i in range(0, len(chunks), 32):  # por lotes para no saturar al modelo de embeddings
         lote = chunks[i : i + 32]
         coleccion.add(
