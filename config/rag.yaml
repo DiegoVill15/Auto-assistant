@@ -1,0 +1,5 @@
+corpus: corpora/lfpc/lfpc.md
+chunk_size: 1200      # caracteres por fragmento
+chunk_overlap: 150    # caracteres compartidos entre fragmentos contiguos de un mismo artículo
+k: 5                  # fragmentos que se recuperan
+threshold: 0.55     # puntaje mínimo (similitud coseno) del mejor fragmento

@@ -2,11 +2,11 @@
 
 Queremos un RAG en español que mida qué tan bien encuentra la información y frene cualquier cambio que lo empeore. La fidelidad de las respuestas se reporta aparte.
 
-Calculamos de 4 a 6 días, a 3 o 4 horas diarias. Al terminar cada fase paramos para revisarla.
+Calculamos de 6 a 8 días, a 3 o 4 horas diarias. Al terminar cada fase paramos para revisarla.
 
 Usamos Python, LangGraph, LiteLLM, bge-m3, ChromaDB, Pydantic, pytest, ruff y GitHub Actions.
 
-Dejamos para después los guardrails, los fallbacks, la auto-optimización, los corpus ficticios, Langfuse, la API, la lectura de PDF y HTML, y la demo en vivo.
+Dejamos para después los guardrails, los fallbacks, la auto-optimización, los corpus ficticios, Langfuse, la lectura de HTML y la demo pública.
 
 ## Fase 0: Cimientos
 
@@ -61,6 +61,18 @@ El caso de un documento que contradice a otro lo probamos en tu Mac con el juez.
 **Está lista cuando** un PR que empeora la fragmentación queda bloqueado.
 
 **Para revisarla,** abres un PR que rompa algo a propósito.
+
+## Fase 6B: Costos y frontend
+
+Cada `ask` guarda el modelo, los tokens y el costo. Con eso vemos el costo por pregunta y el promedio por modelo. Si un proveedor no da precio, usamos el precio publicado con su fecha, y separamos ese costo del que pagamos de verdad, porque los modelos de planes o gratis no cobran por llamada.
+
+Hacemos un frontend básico que corre en tu Mac, sin publicarse. Ahí escribes la pregunta, subes un `.md` o `.pdf`, ves los costos y eliges qué tan larga quieres la respuesta. Los PDF escaneados quedan fuera porque necesitarían OCR.
+
+Las métricas del golden set solo valen para la ley. Si subes otro documento, la página lo avisa.
+
+**Está lista cuando** puedes subir un documento, preguntarle y ver el costo real de esa pregunta y el promedio por modelo.
+
+**Para revisarla,** subes un PDF tuyo y haces 5 preguntas con respuestas cortas y largas.
 
 ## Fase 7: Presentación
 

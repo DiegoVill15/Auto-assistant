@@ -14,4 +14,16 @@
 
 **Python 3.12 fijado con uv.** La Mac trae la 3.15 y preferimos no depender de una versión tan nueva.
 
-**Las carpetas se crean cuando hacen falta.** Por eso todavía no existen `corpora/` ni `evals/`.
+**Las carpetas se crean cuando hacen falta.** Por eso todavía no existe `evals/`.
+
+**La ley se convirtió una vez a Markdown desde el .doc oficial.** No se tocó el texto, solo se agregaron encabezados por capítulo y artículo. Los transitorios de los decretos de reforma quedaron fuera porque no responden preguntas sobre la ley vigente.
+
+**Los fragmentos nunca cruzan artículos.** Así cada cita apunta a un solo artículo, y la posición en caracteres coincide exacta con el archivo.
+
+**Chroma guarda el índice en `.chroma/` y se reconstruye en cada `ingest`.** Es más simple que actualizarlo y el corpus es chico.
+
+**El umbral es 0.55 de similitud coseno.** Con 10 consultas de prueba, las preguntas sobre la ley sacaron de 0.59 a 0.69 y las de fuera de la ley de 0.33 a 0.50. Hay que revisarlo si cambian el corpus o el modelo de embeddings.
+
+**Las citas se verifican en código.** Cada cita [n] debe apuntar a un fragmento recuperado y debe haber al menos una. Si no, la respuesta se descarta.
+
+**Las respuestas son cortas por defecto.** Mucha gente prefiere leer poco, así que el prompt pide de 2 a 4 frases sin perder las condiciones importantes. El frontend permitirá cambiar el largo.

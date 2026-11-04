@@ -13,3 +13,9 @@ compared_models:
   - openrouter/nvidia/nemotron-3-ultra-550b-a55b:free
   - opencode_go/glm-5.3-flash
   - opencode_go/mimo-v2.6-flash
+
+# Modelo que responde en el flujo RAG.
+answer_model: opencode_go/glm-5.3-flash
+
+# Embeddings en local con Ollama.
+embedding_model: ollama/bge-m3

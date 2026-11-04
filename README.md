@@ -13,11 +13,44 @@ uv sync
 cp .env.example .env
 ```
 
-Después pon tus llaves de OpenCode Go y OpenRouter en `.env`.
+Después pon tus llaves de OpenCode Go y OpenRouter en `.env`. Los embeddings corren en tu máquina con bge-m3, así que descárgalo una vez:
+
+```bash
+ollama pull bge-m3
+```
 
 ## Uso
 
-Por ahora puedes comprobar que todos los proveedores responden. El script hace una llamada muy corta a cada uno:
+Primero indexa la ley. Esto fragmenta el texto y guarda los embeddings en `.chroma/`:
+
+```bash
+uv run ingest
+```
+
+Después pregunta lo que quieras. Con tus llaves cargadas:
+
+```bash
+set -a
+source .env
+set +a
+uv run ask "¿Qué pasa si compro un producto y me dan menos cantidad de lo establecido en la etiqueta?"
+```
+
+La respuesta trae citas con el artículo y la posición del fragmento en el texto de la ley:
+
+```
+Tienes derecho, a tu elección, a la reposición del producto, a la devolución de lo pagado
+contra entrega del producto, y en todo caso a una bonificación [1]. Esto aplica cuando el
+contenido neto o la cantidad entregada es menor a la indicada en el envase o empaque,
+considerando los límites de tolerancia permitidos por la normatividad [1].
+
+Citas:
+[1] Artículo 92, posición 118075-119268 de lfpc.md
+```
+
+Si la ley no habla del tema, responde que no sabe sin llamar al modelo. Si la respuesta no trae citas válidas, dice que no pudo sustentarla.
+
+También puedes comprobar que todos los proveedores responden. El script hace una llamada muy corta a cada uno:
 
 ```bash
 set -a
@@ -45,7 +78,9 @@ uv run ruff format --check .
 
 ## Arquitectura
 
-El proyecto apenas empieza, así que por ahora son tres piezas. En `config/models.yaml` están los modelos que usamos. En `src/auto_assistant/models/` está el código que los carga y los llama. Y `scripts/smoke.py` es el script de arriba.
+La configuración vive en `config/`: `models.yaml` con los modelos y `rag.yaml` con el tamaño de los fragmentos, cuántos se recuperan y el umbral para decir que no sabe. La ley en Markdown está en `corpora/lfpc/` y viene del texto oficial de la Cámara de Diputados.
+
+En `src/auto_assistant/` cada carpeta hace una cosa. `ingestion/` lee el texto y lo parte en fragmentos que recuerdan su artículo y su posición exacta. `retrieval/` calcula los embeddings y busca en ChromaDB. `agent/` es el flujo de LangGraph que busca, responde y verifica las citas en código. `models/` carga la configuración y llama a los modelos con LiteLLM. `cli/` tiene los comandos `ingest` y `ask`.
 
 ## Licencia
 
