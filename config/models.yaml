@@ -1,0 +1,14 @@
+# IDs de LiteLLM. Se verifican en la Fase 0.
+
+# No pasa por LiteLLM: lo usa el script del golden set con `claude -p`.
+golden_set_generator: claude-opus-5-5
+
+# Se elige uno en la Fase 3. Nunca puede estar en `compared_models`.
+judge_candidates:
+  - opencode_go/kimi-k3
+  - opencode_go/deepseek-v4-pro
+
+compared_models:
+  - ollama/qwen3.5:9b
+  - opencode_go/glm-5.3-flash
+  - opencode_go/mimo-v2.6-flash
