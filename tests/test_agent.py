@@ -62,3 +62,15 @@ def test_sin_indice_ask_pide_ingest(tmp_path, monkeypatch):
     assert not has_index(tmp_path / ".chroma")
     with pytest.raises(SystemExit, match="uv run ingest"):
         main.ask()
+
+
+def test_build_index_borra_carpetas_viejas(tmp_path):
+    def falso(textos):
+        return [[1.0, 0.0] for _ in textos]
+
+    (tmp_path / "vieja").mkdir()
+    chunk = Chunk("d.md", 0, 4, "1", "algo")
+    build_index([chunk], falso, tmp_path)
+    build_index([chunk], falso, tmp_path)
+    assert not (tmp_path / "vieja").exists()
+    assert len([d for d in tmp_path.iterdir() if d.is_dir()]) == 1
