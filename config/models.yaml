@@ -9,6 +9,7 @@ judge_candidates:
   - opencode_go/deepseek-v4-pro
 
 compared_models:
-  - ollama/qwen3.5:9b
+  - ollama/gemma4:31b-cloud
+  - openrouter/nvidia/nemotron-3-ultra-550b-a55b:free
   - opencode_go/glm-5.3-flash
   - opencode_go/mimo-v2.6-flash

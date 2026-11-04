@@ -7,16 +7,16 @@ import sys
 from auto_assistant.models.client import OPENCODE_GO_ENV, complete
 
 PROMPT = "Responde solo: ok"
+OPENROUTER_MODELO = "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
 
 
-def local() -> str:
-    return complete("ollama/qwen3.5:9b", PROMPT)
+def con_llave(modelo: str, variable: str | None = None):
+    def llamar() -> str:
+        if variable and not os.environ.get(variable):
+            raise RuntimeError(f"falta la variable de entorno {variable}")
+        return complete(modelo, PROMPT)
 
-
-def opencode_go() -> str:
-    if not os.environ.get(OPENCODE_GO_ENV):
-        raise RuntimeError(f"falta la variable de entorno {OPENCODE_GO_ENV}")
-    return complete("opencode_go/glm-5.3-flash", PROMPT)
+    return llamar
 
 
 def claude_pro() -> str:
@@ -33,7 +33,12 @@ def claude_pro() -> str:
 
 def main() -> int:
     fallas = 0
-    for nombre, fn in [("ollama", local), ("opencode_go", opencode_go), ("claude -p", claude_pro)]:
+    for nombre, fn in [
+        ("ollama", con_llave("ollama/gemma4:31b-cloud")),
+        ("openrouter", con_llave(OPENROUTER_MODELO, "OPENROUTER_API_KEY")),
+        ("opencode_go", con_llave("opencode_go/glm-5.3-flash", OPENCODE_GO_ENV)),
+        ("claude -p", claude_pro),
+    ]:
         try:
             fn()
             print(f"OK    {nombre}")
