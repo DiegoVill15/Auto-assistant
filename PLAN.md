@@ -13,10 +13,10 @@ Estimación: 4 a 6 días, a 3 o 4 horas diarias. Cada fase termina en una parada
 - Estructura `tests/`, `corpora/`, `evals/` y `src/`, con una carpeta por responsabilidad: `models/` en esta fase; después `ingestion/`, `retrieval/`, `agent/`, `evaluation/` y `cli/`. Además, `pyproject.toml`, ruff y pytest.
 - Capa de modelos con LiteLLM y configuración en YAML.
 - Modelos definidos en `config/models.yaml`.
-- Script de humo con Ollama y OpenCode Go, con user agent propio. Una llamada aparte confirma que `claude -p` funciona con Opus 5.5 en el plan Pro.
+- Script de humo con Ollama Cloud, OpenCode Go y OpenRouter, con user agent propio. Una llamada aparte confirma que `claude -p` funciona con Opus 5.5 en el plan Pro.
 - GitHub Actions con lint y pruebas; README y `DECISIONS.md` iniciales.
 
-**Aceptación:** pruebas en verde en local y en CI; el script responde con ambos proveedores y `claude -p` responde con Opus 5.5.
+**Aceptación:** pruebas en verde en local y en CI; el script responde con los tres proveedores y `claude -p` responde con Opus 5.5.
 
 **Parada:** corres el script con tus llaves.
 
@@ -49,10 +49,10 @@ Estimación: 4 a 6 días, a 3 o 4 horas diarias. Cada fase termina en una parada
 ## Fase 3: Evaluación y comparación
 
 - Métricas de recuperación en código: recall@k, MRR y hit rate.
-- Juez solo en local, con pocas llamadas simultáneas: fidelidad y rechazo correcto. Elegir una herramienta (Ragas, DeepEval o propia) tras una prueba corta en español.
+- Juez lanzado solo desde tu Mac, nunca en CI, con pocas llamadas simultáneas: fidelidad y rechazo correcto. Elegir una herramienta (Ragas, DeepEval o propia) tras una prueba corta en español.
 - Elegir al juez entre `kimi-k3` y `deepseek-v4-pro`: gana el que más coincida con 20 respuestas etiquetadas a mano.
 - Reporte en Markdown con calidad, latencia y tokens.
-- Gráfica pequeña que compara `glm-5.3-flash`, `mimo-v2.6-flash` y un modelo local de Ollama.
+- Gráfica pequeña que compara `glm-5.3-flash`, `mimo-v2.6-flash`, `gemma4:31b-cloud` (Ollama Cloud) y `nemotron-3-ultra-550b-a55b:free` (OpenRouter).
 - La clave de caché incluye modelo, prompt, contexto y número de corrida.
 
 **Aceptación:** corrida completa con al menos 2 modelos. Empieza con 1 corrida por modelo y llega a 3 solo si los límites de OpenCode Go lo permiten.
@@ -72,10 +72,10 @@ Estimación: 4 a 6 días, a 3 o 4 horas diarias. Cada fase termina en una parada
 ## Fase 7: Presentación
 
 - README con arquitectura, gráfica de modelos y pasos para reproducir.
+- Archivo `LICENSE` con la licencia MIT.
 
 **Aceptación:** alguien que no conoce el proyecto clona el repo y reproduce un reporte siguiendo solo el README.
 
 ## Decisiones abiertas
 
-- [ ] Nombre del proyecto y licencia (MIT o Apache-2.0)
-- [ ] Modelo local de Ollama para la comparación
+- [ ] Embeddings: dónde correrlos sin modelos locales en la MacBook

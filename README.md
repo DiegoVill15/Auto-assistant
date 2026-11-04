@@ -6,16 +6,16 @@ Asistente RAG de código abierto y en español que se auto-evalúa: mide su cali
 
 ## Instalación
 
-Requisitos: [uv](https://docs.astral.sh/uv/), [Ollama](https://ollama.com) con `qwen3.5:9b` y, para el script de humo, la CLI `claude` con sesión del plan Pro.
+Requisitos: [uv](https://docs.astral.sh/uv/), [Ollama](https://ollama.com) con sesión iniciada (`ollama signin`, para modelos cloud; no se corre ningún modelo local) y, para el script de humo, la CLI `claude` con sesión del plan Pro.
 
 ```bash
 uv sync
-cp .env.example .env   # y completa OPENCODE_GO_API_KEY
+cp .env.example .env   # y completa OPENCODE_GO_API_KEY y OPENROUTER_API_KEY
 ```
 
 ## Uso
 
-Prueba de humo (una llamada mínima por proveedor; no corre en CI):
+Prueba de humo (una llamada mínima a cada uno de los cuatro proveedores: Ollama cloud, OpenRouter, OpenCode Go y `claude -p`; no corre en CI):
 
 ```bash
 set -a; source .env; set +a
@@ -26,6 +26,7 @@ Ejemplo de salida:
 
 ```
 OK    ollama
+OK    openrouter
 OK    opencode_go
 OK    claude -p
 ```
@@ -36,8 +37,8 @@ Pruebas y lint: `uv run pytest`, `uv run ruff check .`, `uv run ruff format --ch
 
 - `config/models.yaml`: modelos comparados, jueces candidatos y generador del golden set.
 - `src/auto_assistant/models/`: carga de la configuración y `complete()`, único acceso a modelos vía LiteLLM.
-- `scripts/smoke.py`: verifica Ollama, OpenCode Go y `claude -p`.
+- `scripts/smoke.py`: verifica Ollama cloud, OpenRouter, OpenCode Go y `claude -p`.
 
 ## Licencia
 
-Por definir.
+MIT (se agregará al final del proyecto).
