@@ -5,7 +5,13 @@ from pathlib import Path
 import yaml
 
 RUTA_POR_DEFECTO = Path(__file__).resolve().parents[3] / "config" / "models.yaml"
-CLAVES = ("golden_set_generator", "judge_candidates", "compared_models")
+CLAVES = (
+    "golden_set_generator",
+    "judge_candidates",
+    "compared_models",
+    "answer_model",
+    "embedding_model",
+)
 
 
 def load_models_config(path: Path = RUTA_POR_DEFECTO) -> dict:

@@ -10,7 +10,13 @@ def _escribir(tmp_path, datos):
     return ruta
 
 
-BASE = {"golden_set_generator": "g", "judge_candidates": ["j"], "compared_models": ["m"]}
+BASE = {
+    "golden_set_generator": "g",
+    "judge_candidates": ["j"],
+    "compared_models": ["m"],
+    "answer_model": "a",
+    "embedding_model": "e",
+}
 
 
 def test_carga_config_real():
