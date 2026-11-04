@@ -48,7 +48,7 @@ En este proyecto sí están autorizadas las pruebas que pida `PLAN.md`, como exc
 
 - Lo que el código puede medir (recall, formato, citas) se mide en código con pruebas unitarias. El LLM no decide eso.
 - Las regresiones no usan IA, salvo que sea muy necesario.
-- No corras modelos locales en mi MacBook: usa solo modelos en la nube (OpenCode Go, Ollama Cloud y un proveedor gratis).
+- No corras LLM locales en mi MacBook: usa solo modelos en la nube (OpenCode Go, Ollama Cloud y un proveedor gratis). Los embeddings sí corren en local.
 - Las evaluaciones con LLM se lanzan desde mi Mac, nunca en CI, con pocas llamadas simultáneas.
 - Todo modelo se llama por LiteLLM, nunca con SDKs de proveedores directo en la lógica. Única excepción: el script aparte que genera el golden set con `claude -p` y Opus 5.5, usando mi plan Claude Pro.
 - Los modelos se definen en `config/models.yaml`.

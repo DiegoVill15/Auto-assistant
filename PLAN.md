@@ -76,6 +76,3 @@ Estimación: 4 a 6 días, a 3 o 4 horas diarias. Cada fase termina en una parada
 
 **Aceptación:** alguien que no conoce el proyecto clona el repo y reproduce un reporte siguiendo solo el README.
 
-## Decisiones abiertas
-
-- [ ] Embeddings: dónde correrlos sin modelos locales en la MacBook

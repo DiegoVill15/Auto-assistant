@@ -8,3 +8,4 @@
 - OpenCode Go se llama por el endpoint compatible con OpenAI (`OPENCODE_GO_API_KEY`) hasta que LiteLLM publique el proveedor `opencode_go` en una versión estable.
 - Solo modelos en la nube, sin correr LLM en la MacBook.
 - OpenRouter como proveedor gratis: límite de 50 peticiones al día, y los modelos `:free` rotan, así que los reportes llevan fecha.
+- Los embeddings (bge-m3) corren en local: la puerta de CI no necesita llaves y sus métricas son repetibles.
